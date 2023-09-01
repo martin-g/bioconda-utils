@@ -19,10 +19,10 @@ jobs:
         include:
           - arch: arm64
             image: bioconda-utils-build-env-cos7-aarch64
-            base_image: quay.io/condaforge/linux-anvil-aarch64
+            base_image: ${{ secrets.QUAY_BIOCONDA_REPO }}/linux-anvil-aarch64
           - arch: amd64
             image: bioconda-utils-build-env-cos7
-            base_image: quay.io/condaforge/linux-anvil-cos7-x86_64
+            base_image: ${{ secrets.QUAY_BIOCONDA_REPO }}/linux-anvil-cos7-x86_64
     steps:
     - uses: actions/checkout@v3
       with:
