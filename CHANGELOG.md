@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.99](https://www.github.com/bioconda/bioconda-utils/compare/v2.4.0...v2.4.99) (2023-09-05)
+
+### Features
+
+* test making new releases
+
+
 ## [2.4.0](https://www.github.com/bioconda/bioconda-utils/compare/v2.3.4...v2.4.0) (2023-08-24)
 
 
