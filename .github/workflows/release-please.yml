@@ -1,5 +1,5 @@
 on:
-  push:
+  pull_request:
     branches:
       - master
 
@@ -12,11 +12,15 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: GoogleCloudPlatform/release-please-action@v2
-        id: release
-        with:
-          release-type: python
-          package-name: bioconda-utils
+      # - uses: GoogleCloudPlatform/release-please-action@v2
+      #   id: release
+      #   with:
+      #     release-type: python
+      #     package-name: bioconda-utils
+      - id: release
+        run: |
+          echo "release_created=2023-09-08T16:24:00Z" >> $GITHUB_OUTPUT
+          echo "tag_name=test-release-1" >> $GITHUB_OUTPUT
 
   publish_containers:
     runs-on: ubuntu-latest
