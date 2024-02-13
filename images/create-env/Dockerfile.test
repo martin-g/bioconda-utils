@@ -1,4 +1,5 @@
 ARG base
+ARG BUSYBOX_IMAGE
 
 FROM "${base}"
 RUN set -x && \
@@ -39,7 +40,6 @@ RUN set -x && \
         /usr/local \
         catfasta2phyml
 
-ARG BUSYBOX_IMAGE
 FROM "${BUSYBOX_IMAGE}"
 COPY --from=build_bioconda_package /usr/local /usr/local
 RUN set -x && \
