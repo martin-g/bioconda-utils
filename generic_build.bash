@@ -279,15 +279,26 @@ done
 # ------------------------------------------------------------------------------
 # TESTING
 
-# Extract image IDs from the manifest built in the last step
+# Extract image IDs and their respective CPU architecture from
+# the manifest built in the last step
 ids="$(
   for tag in $TAGS ; do
-    buildah manifest inspect "${IMAGE_NAME}:${tag}" \
-      | jq -r '.manifests[]|.digest' \
-      | while read id ; do
-          buildah images --format '{{.ID}}{{.Digest}}' \
-          | sed -n "s/${id}//p"
-        done
+    MANIFEST_ID_AND_ARCH=$(buildah manifest inspect "${IMAGE_NAME}:${tag}" \
+      | jq -r '.manifests[] | "\(.digest);\(.platform.architecture)"');
+
+    for manifest_id_and_arch in ${MANIFEST_ID_AND_ARCH}; do
+      ORIG_IFS="$IFS"
+      IFS=";"
+      declare -a fields=(${manifest_id_and_arch})
+      IFS="$ORIG_IFS"
+      unset ORIG_IFS
+      MANIFEST_ID=${fields[0]}
+      ARCH=${fields[1]}
+
+      IMAGE_ID=$(buildah images --format '{{.ID}}{{.Digest}}' \
+            | sed -n "s/${MANIFEST_ID}//p" | sort -u)
+      echo "${IMAGE_ID};${ARCH}"
+    done
   done
   )"
 
@@ -296,11 +307,22 @@ ids="$(
 #
 # N.B. need to unique since one image can have multiple tags
 ids="$( printf %s "${ids}" | sort -u )"
-for id in ${ids} ; do
+for id_and_arch in ${ids} ; do
+
+  ORIG_IFS="$IFS"
+  IFS=";"
+  declare -a fields=($id_and_arch)
+  IFS="$ORIG_IFS"
+  unset ORIG_IFS
+  id=${fields[0]}
+  arch=${fields[1]}
+
   podman history "${id}"
   buildah bud \
     --build-arg=base="${id}" \
     ${TEST_BUILD_ARGS[@]} \
+    --arch="${arch}" \
+    --pull-never \
     --file=Dockerfile.test
 done
 
